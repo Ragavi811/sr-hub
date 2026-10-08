@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SR HUB | Boutique</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --pink: #880E4F; --light: #fff5f8; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: white; color: #333; }
+
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 5%; border-bottom: 2px solid var(--pink); background: white; position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 24px; font-weight: bold; color: var(--pink); text-decoration: none; letter-spacing: 2px; }
+        .nav-links a { margin-left: 20px; text-decoration: none; color: #333; font-weight: 600; font-size: 14px; text-transform: uppercase; }
+
+        .hero { height: 60vh; background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.pexels.com/photos/1884581/pexels-photo-1884581.jpeg?auto=compress&cs=tinysrgb&w=1200'); background-size: cover; background-position: center; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; }
+        .hero h1 { font-size: 50px; letter-spacing: 5px; margin-bottom: 10px; }
+        
+        .search-container { margin-top: 25px; width: 100%; max-width: 500px; display: flex; background: white; border-radius: 30px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .search-container input { flex: 1; padding: 15px 25px; border: none; outline: none; font-size: 16px; }
+        .search-container button { background: var(--pink); color: white; border: none; padding: 0 25px; cursor: pointer; }
+
+        .container { padding: 50px 5%; text-align: center; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px; }
+        .card { position: relative; height: 400px; border-radius: 10px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: 0.3s; }
+        .card img { width: 100%; height: 100%; object-fit: cover; }
+        .overlay { position: absolute; bottom: 0; width: 100%; padding: 20px; background: rgba(136, 14, 79, 0.85); color: white; }
+        
+        .btn { display: inline-block; margin-top: 10px; padding: 8px 20px; background: white; color: var(--pink); text-decoration: none; font-weight: bold; border-radius: 5px; font-size: 12px; transition: 0.3s; }
+        .btn:hover { background: var(--pink); color: white; border: 1px solid white; transform: translateY(-3px); }
+
+        footer { padding: 40px; background: #f8f8f8; text-align: center; color: var(--pink); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="/home" class="logo">SR HUB</a>
+        <div class="nav-links">
+            <a href="/category/men">Men</a>
+            <a href="/category/women">Women</a>
+            <a href="/category/kids">Kids</a>
+            <a href="/category/accessories">Accessories</a>
+            <a href="/logout" style="color: var(--pink);">Logout</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <h1>SR HUB</h1>
+        <p>ELEGANT FASHION | Welcome, {{ user }}</p>
+        <form action="/search" method="GET" class="search-container">
+            <input type="text" name="query" placeholder="Search for sarees, shirts..." required>
+            <button type="submit"><i class="fas fa-search"></i></button>
+        </form>
+    </div>
+
+    <div class="container">
+        <h2>SHOP CATEGORIES</h2>
+        <div class="grid">
+            <div class="card">
+                <img src="https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=800">
+                <div class="overlay"><h3>MEN</h3><a href="/category/men" class="btn">SHOP NOW</a></div>
+            </div>
+            <div class="card">
+                <img src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg?auto=compress&cs=tinysrgb&w=800">
+                <div class="overlay"><h3>WOMEN</h3><a href="/category/women" class="btn">SHOP NOW</a></div>
+            </div>
+            <div class="card">
+                <img src="https://images.pexels.com/photos/1619801/pexels-photo-1619801.jpeg?auto=compress&cs=tinysrgb&w=800">
+                <div class="overlay"><h3>KIDS</h3><a href="/category/kids" class="btn">SHOP NOW</a></div>
+            </div>
+            <div class="card">
+                <img src="https://images.pexels.com/photos/1453008/pexels-photo-1453008.jpeg?auto=compress&cs=tinysrgb&w=800">
+                <div class="overlay"><h3>ACCESSORIES</h3><a href="/category/accessories" class="btn">SHOP NOW</a></div>
+            </div>
+        </div>
+    </div>
+
+
+    <footer>&copy; 2026 SR HUB BOUTIQUE</footer>
+</body>
+</html>

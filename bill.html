@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SR HUB | Professional Invoice</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#eef2f3; padding:40px 10px; margin:0; }
+        .invoice-card { max-width:650px; margin:auto; background:white; padding:40px; border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,0.1); position: relative; }
+        
+        .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #e91e63; padding-bottom: 20px; }
+        .order-info { text-align: right; font-size: 14px; color: #666; }
+        
+        .customer-details { background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0; font-size: 14px; line-height: 1.6; }
+        
+        .bill-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .bill-table th { text-align: left; background: #f4f4f4; padding: 10px; color: #333; }
+        .bill-table td { padding: 12px 10px; border-bottom: 1px solid #eee; }
+
+        .totals-section { text-align: right; margin-top: 20px; }
+        .totals-section p { margin: 5px 0; color: #555; }
+        .grand-total { font-size: 24px; color: #e91e63; font-weight: bold; margin-top: 10px; }
+
+        .qr-section { text-align: center; margin-top: 25px; padding: 20px; border: 2px solid #e91e63; border-radius: 12px; background: #fffafa; }
+        .qr-image { width: 160px; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin: 10px 0; }
+
+        /* The Smart Advisor Styling */
+        .smart-box { background:#fff0f5; border:2px dashed #e91e63; border-radius:12px; padding:20px; margin-top:40px; }
+        .rec-grid { display:flex; gap:15px; margin-top:15px; }
+        .rec-item { flex:1; text-align:center; background:white; padding:10px; border-radius:8px; font-size:11px; box-shadow:0 2px 5px rgba(0,0,0,0.05); border: 1px solid #ffe1ed; }
+        
+        .btn-print { width:100%; margin-top:30px; padding:15px; background:#333; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer; font-size: 16px; transition: 0.3s; }
+        .btn-finish { width:100%; margin-top:10px; padding:15px; background:green; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer; text-decoration: none; display: block; text-align: center; }
+        .btn-mini-add { background: #e91e63; color: white; border: none; padding: 7px; border-radius: 4px; font-size: 10px; cursor: pointer; margin-top: 5px; width: 100%; font-weight: bold; }
+
+        @media print { .btn-print, .btn-finish, .smart-box, .return-link, .qr-section { display: none; } }
+    </style>
+</head>
+<body>
+    <div class="invoice-card">
+        <div class="header">
+            <div>
+                <h1 style="color:#e91e63; margin:0; letter-spacing: 2px;">SR HUB</h1>
+                <p style="margin:5px 0; color: #777;">Order Confirmed!</p>
+            </div>
+            <div class="order-info">
+                <p><b>Order ID:</b> #{{ order_id }}</p>
+                <p><b>Date:</b> 02 April 2026</p>
+                <p><b>Payment:</b> {{ payment_mode | upper }}</p>
+            </div>
+        </div>
+
+        <div class="customer-details">
+            <p><b>Billed To:</b> {{ cust_name }}</p>
+            <p><b>Phone:</b> {{ phone }}</p>
+            <p><b>Address:</b> {{ address }}</p>
+        </div>
+        
+        <table class="bill-table">
+            <thead>
+                <tr>
+                    <th>Item Description</th>
+                    <th>Qty</th>
+                    <th style="text-align: right;">Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.qty }}</td>
+                    <td style="text-align: right;">₹{{ item.price * item.qty }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="totals-section">
+            <p>Subtotal: ₹{{ subtotal }}</p>
+            <p style="color: green;">Discount (10%): -₹{{ discount }}</p>
+            <div class="grand-total">Amount Payable: ₹{{ total }}</div>
+        </div>
+
+        {% if payment_mode == 'online' %}
+        <div class="qr-section">
+            <h3 style="color:#e91e63; margin:0;">Scan to Pay</h3>
+            <img src="{{ url_for('static', filename='images/qr_code.jpeg') }}" class="qr-image" onerror="this.src='https://via.placeholder.com/150?text=QR+Code'">
+        </div>
+        {% else %}
+        <div style="text-align: center; margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 10px; color: #2e7d32;">
+            <b>📦 Cash on Delivery:</b> Please keep ₹{{ total }} ready.
+        </div>
+        {% endif %}
+
+        <div class="smart-box">
+            <h4 style="margin:0; color:#e91e63;">✨ SR Smart Advisor</h4>
+            <p style="font-size:12px; margin:5px 0;">Complete your look with these suggestions based on your purchase:</p>
+            
+            <div class="rec-grid">
+                {% for r in recs %}
+                <div class="rec-item">
+                    <img src="/static/images/{{ r.image_url }}" onerror="this.src='https://via.placeholder.com/80'" style="width:100%; height:70px; object-fit:cover; border-radius:5px;">
+                    <p style="margin:5px 0; font-weight:bold;">{{ r.name }}</p>
+                    <p style="color:#e91e63; margin:0;">₹{{ r.price }}</p>
+                    
+                    <form action="/add_to_cart" method="POST">
+                        <input type="hidden" name="name" value="{{ r.name }}">
+                        <input type="hidden" name="price" value="{{ r.price }}">
+                        <input type="hidden" name="category" value="{{ r.category }}">
+                        <input type="hidden" name="image" value="{{ r.image_url }}">
+                        <button type="submit" class="btn-mini-add">ADD NOW</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <button onclick="window.print()" class="btn-print">PRINT PDF BILL</button>
+        <a href="/order_success" class="btn-finish">FINISH & PLACE ORDER</a>
+    </div>
+</body>
+</html>

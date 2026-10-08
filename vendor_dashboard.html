@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Dashboard | SR HUB</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
+        .nav-bar { background: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .logo { color: #e91e63; font-weight: 900; font-size: 24px; text-decoration: none; }
+        
+        .container { display: flex; padding: 30px 5%; gap: 30px; }
+        
+        .form-section { background: white; padding: 25px; border-radius: 12px; flex: 1; box-shadow: 0 4px 15px rgba(0,0,0,0.05); height: fit-content; }
+        h3 { margin-top: 0; color: #333; border-bottom: 2px solid #e91e63; padding-bottom: 10px; display: inline-block; }
+        
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        .btn-submit { background: #e91e63; color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-submit:hover { background: #c2185b; }
+
+        .inventory-section { background: white; padding: 25px; border-radius: 12px; flex: 2; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #f1f1f1; padding: 15px; text-align: left; color: #555; }
+        td { padding: 15px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        
+        .stock-badge { padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .in-stock { background: #e8f5e9; color: #2e7d32; }
+        .out-stock { background: #ffebee; color: #c62828; }
+        
+        .btn-edit { background: #2196F3; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 13px; }
+        .btn-delete { color: #d32f2f; text-decoration: none; font-weight: bold; border: 1px solid #d32f2f; padding: 5px 10px; border-radius: 4px; transition: 0.3s; font-size: 13px; }
+        .btn-delete:hover { background: #d32f2f; color: white; }
+
+        #imagePreview { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 2px dashed #e91e63; display: none; margin: 10px auto; }
+
+        /* Modal Styles */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+        .modal-content { background-color: white; margin: 10% auto; padding: 30px; border-radius: 15px; width: 400px; box-shadow: 0 5px 30px rgba(0,0,0,0.3); }
+    </style>
+</head>
+<body>
+
+    <div class="nav-bar">
+        <a href="#" class="logo">SR HUB <small style="color: #666; font-size: 14px;">| VENDOR PANEL</small></a>
+        <div>
+            <span style="margin-right: 20px; color: #555;">Welcome, {{ session.get('user') }}</span>
+            <a href="/logout" style="color: #e91e63; text-decoration: none; font-weight: bold;">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="form-section">
+            <h3>List New Item</h3>
+            <form method="POST" enctype="multipart/form-data">
+                <input type="text" name="name" placeholder="Product Name" required>
+                <select name="category" required>
+                    <option value="" disabled selected>Select Category</option>
+                    <option value="men">Men's Fashion</option>
+                    <option value="women">Women's Fashion</option>
+                    <option value="kids">Kids' Corner</option>
+                    <option value="accessories">Accessories</option>
+                </select>
+                <input type="number" name="price" placeholder="Price (₹)" required>
+                <input type="number" name="quantity" placeholder="Stock Quantity" required>
+                <div style="text-align: center;"><img id="imagePreview" src="#" alt="Preview"></div>
+                <input type="file" name="image" id="imageInput" accept="image/*" required>
+                <button type="submit" class="btn-submit">PUBLISH TO STORE</button>
+            </form>
+        </div>
+
+        <div class="inventory-section">
+            <h3>Your Live Inventory</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in products %}
+                    <tr>
+                        <td>
+                            <div style="font-weight: bold;">{{ p.name }}</div>
+                            <small style="color: #888;">ID: #{{ p.id }} | {{ p.category }}</small>
+                        </td>
+                        <td>₹{{ p.price }}</td>
+                        <td>
+                            {% if p.quantity > 0 %}
+                                <span class="stock-badge in-stock">{{ p.quantity }} Left</span>
+                            {% else %}
+                                <span class="stock-badge out-stock">Sold Out</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn-edit" onclick="openEditModal('{{ p.id }}', '{{ p.name }}', '{{ p.price }}', '{{ p.quantity }}', '{{ p.category }}')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <a href="/vendor/delete/{{ p.id }}" class="btn-delete" onclick="return confirm('Remove this item?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-top:0;">Update Product</h3>
+            <form action="/vendor/update" method="POST">
+                <input type="hidden" name="product_id" id="edit-id">
+                
+                <label style="font-size: 12px; color: #666;">Product Name</label>
+                <input type="text" name="name" id="edit-name" required>
+
+                <label style="font-size: 12px; color: #666;">Category</label>
+                <select name="category" id="edit-category" required>
+                    <option value="men">Men's Fashion</option>
+                    <option value="women">Women's Fashion</option>
+                    <option value="kids">Kids' Corner</option>
+                    <option value="accessories">Accessories</option>
+                </select>
+                
+                <label style="font-size: 12px; color: #666;">Price (₹)</label>
+                <input type="number" name="price" id="edit-price" required>
+                
+                <label style="font-size: 12px; color: #666;">Stock Quantity</label>
+                <input type="number" name="quantity" id="edit-qty" required>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" style="flex: 1; background: #2e7d32; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">SAVE CHANGES</button>
+                    <button type="button" onclick="closeModal()" style="flex: 1; background: #eee; color: #333; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">CANCEL</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Image Preview logic
+        const imageInput = document.getElementById('imageInput');
+        const imagePreview = document.getElementById('imagePreview');
+
+        imageInput.onchange = evt => {
+            const [file] = imageInput.files;
+            if (file) {
+                imagePreview.src = URL.createObjectURL(file);
+                imagePreview.style.display = 'block';
+            }
+        }
+
+        // Modal logic with 5 parameters
+        function openEditModal(id, name, price, qty, category) {
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-name').value = name;
+            document.getElementById('edit-price').value = price;
+            document.getElementById('edit-qty').value = qty;
+            document.getElementById('edit-category').value = category;
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // Close modal if user clicks outside of it
+        window.onclick = function(event) {
+            let modal = document.getElementById('editModal');
+            if (event.target == modal) { closeModal(); }
+        }
+    </script>
+</body>
+</html>

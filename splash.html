@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SR HUB | Initializing...</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #0f0f0f; /* Deep Black */
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
+        }
+
+        .splash-container {
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .logo {
+            color: #fff;
+            font-size: 48px;
+            font-weight: 900;
+            letter-spacing: 12px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeInDown 1s ease-out forwards;
+        }
+
+        .logo span { color: #e91e63; }
+
+        /* Modern Loading Bar */
+        .loader-track {
+            width: 200px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0 auto;
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .loader-fill {
+            position: absolute;
+            height: 100%;
+            width: 0%;
+            background: #e91e63;
+            box-shadow: 0 0 15px #e91e63;
+            animation: loadProgress 2.5s ease-in-out forwards;
+        }
+
+        .status-text {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-top: 15px;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 0.5s forwards;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        @keyframes loadProgress {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+
+        /* Screen Exit Animation */
+        .exit-app {
+            animation: fadeOut 0.8s ease-in forwards;
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="splash-container" id="splash">
+        <h1 class="logo">SR<span>HUB</span></h1>
+        <div class="loader-track">
+            <div class="loader-fill"></div>
+        </div>
+        <p class="status-text">Establishing Secure Connection</p>
+    </div>
+
+    <script>
+        // Redirect to Login page after 3 seconds
+       setTimeout(() => {
+    const splash = document.getElementById('splash');
+    splash.classList.add('exit-app');
+    
+    setTimeout(() => {
+        // Change this to "/login" to move to the next page
+        window.location.href = "/login"; 
+    }, 800);
+}, 3000);
+    </script>
+</body>
+</html>
